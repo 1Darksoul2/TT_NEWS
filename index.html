@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trading News Dashboard</title>
+
+<!-- Fonts: Inter for UI text, IBM Plex Mono for data/meta (ticker feel) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- ============================== SIDEBAR ============================== -->
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark">&#9650;</span>
+            <div class="brand-text">
+                <span class="brand-title">TICKER<span class="brand-accent">DESK</span></span>
+                <span class="brand-sub">live market news</span>
+            </div>
+        </div>
+
+        <nav class="nav" id="navList">
+            {% for name in section_names %}
+            <button class="nav-item {% if loop.first %}active{% endif %}" data-section="{{ name }}">
+                <span class="nav-dot"></span>{{ name }}
+            </button>
+            {% endfor %}
+            <div class="nav-divider"></div>
+            <button class="nav-item" data-section="Saved Articles" id="savedNavBtn">
+                <span class="nav-dot"></span>Saved Articles
+                <span class="saved-count" id="savedCount">0</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-footer">
+            Data via <a href="https://mediastack.com" target="_blank" rel="noopener">MediaStack</a><br>
+            No AI &middot; No sentiment &middot; Live only
+        </div>
+    </aside>
+
+    <!-- ============================== MAIN ============================== -->
+    <main class="main">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-title-block">
+                <h1 class="page-title" id="pageTitle">Home</h1>
+                <p class="page-subtitle" id="pageSubtitle">Latest business &amp; market headlines</p>
+            </div>
+
+            <div class="header-controls">
+                <div class="search-box">
+                    <span class="search-icon">&#128269;</span>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search company, stock or keyword &mdash; Reliance, Bitcoin, RBI, Tesla..."
+                        autocomplete="off"
+                    >
+                    <button id="clearSearchBtn" class="clear-search" title="Clear search" hidden>&times;</button>
+                </div>
+                <button id="refreshBtn" class="btn btn-primary">
+                    <span class="refresh-icon">&#8635;</span> Refresh
+                </button>
+            </div>
+        </header>
+
+        <!-- Filters -->
+        <section class="filters" id="filtersBar">
+            <div class="filter-field">
+                <label for="categoryFilter">Category</label>
+                <select id="categoryFilter">
+                    <option value="">All categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat|capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-field">
+                <label for="dateFilter">Date</label>
+                <input type="date" id="dateFilter">
+            </div>
+
+            <div class="filter-field filter-field-wide">
+                <label for="sourceFilter">Source</label>
+                <input type="text" id="sourceFilter" placeholder="e.g. bbc, cnn, moneycontrol">
+            </div>
+
+            <div class="filter-field">
+                <label for="limitFilter">Results</label>
+                <select id="limitFilter">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+
+            <button id="applyFiltersBtn" class="btn btn-ghost">Apply</button>
+            <button id="resetFiltersBtn" class="btn btn-text">Reset</button>
+        </section>
+
+        <!-- Status line -->
+        <div class="status-line" id="statusLine"></div>
+
+        <!-- News grid -->
+        <section class="news-grid" id="newsGrid"></section>
+
+        <!-- Saved articles grid (hidden until "Saved Articles" is opened) -->
+        <section class="news-grid" id="savedGrid" hidden></section>
+
+        <!-- Empty / error / loading states -->
+        <div class="state-box" id="emptyState" hidden>
+            <p>No articles found for this section or search.</p>
+            <span>Try a different keyword, category, or clear your filters.</span>
+        </div>
+
+        <div class="state-box state-error" id="errorState" hidden>
+            <p id="errorMessage">Something went wrong.</p>
+            <span>Please check your connection or try again in a moment.</span>
+        </div>
+
+        <div class="state-box" id="savedEmptyState" hidden>
+            <p>You haven't saved any articles yet.</p>
+            <span>Click <strong>Save</strong> on any news card to bookmark it here for this browser.</span>
+        </div>
+
+        <div class="loading-bar" id="loadingBar" hidden>
+            <div class="loading-bar-fill"></div>
+        </div>
+
+    </main>
+</div>
+
+<!-- Card template used by JavaScript (kept out of the JS strings for readability) -->
+<template id="cardTemplate">
+    <article class="news-card">
+        <div class="news-card-image-wrap">
+            <img class="news-card-image" src="" alt="" loading="lazy">
+            <span class="category-badge"></span>
+        </div>
+        <div class="news-card-body">
+            <h3 class="news-headline"></h3>
+            <p class="news-description"></p>
+            <div class="news-meta">
+                <span class="news-source"></span>
+                <span class="news-date"></span>
+            </div>
+            <div class="news-actions">
+                <a class="btn btn-primary btn-read" href="#" target="_blank" rel="noopener">Read Full Article &rarr;</a>
+                <button class="btn btn-ghost btn-save">&#128278; Save</button>
+            </div>
+        </div>
+    </article>
+</template>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
